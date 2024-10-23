@@ -3,6 +3,7 @@ let taskCount = 0;
 let remainingTasks = 0;
 const taskHistory = [];
 
+
 function addTask() {
     taskCount++;
     remainingTasks++;
@@ -10,40 +11,48 @@ function addTask() {
 
     const newRow = document.createElement('tr');
     newRow.id = `taskRow${taskCount}`;
-    newRow.innerHTML = `
-        <td><input type="text" class="form-control" placeholder="Enter task description"></td>
-        <td>
+    newRow.innerHTML = `<td><input type="text" class="form-control task-input" placeholder="Enter task"></td><td>
             <select class="form-select" id="progressSelect${taskCount}">
                 <option value="notStarted" selected>Not Started Yet</option>
                 <option value="inProgress">In Progress</option>
             </select>
         </td>
         <td><input type="checkbox" id="doneCheck${taskCount}"></td>
-        <td class="date-completed" id="dateCompleted${taskCount}"></td>
-    `;
+        <td class="date-completed" id="dateCompleted${taskCount}"></td>`;
+        
+    // Event listeners for the new input
+    const taskInput = newRow.querySelector('.task-input');
+    taskInput.addEventListener('focus', function() {
+        this.classList.add('expanded');
+    });
+
+    taskInput.addEventListener('keydown', function(event) {
+        if (event.key === 'Enter') {
+            this.classList.remove('expanded');
+            this.blur(); // Optionally blur the input to lose focus
+        }
+    });
 
     const doneCheckbox = newRow.querySelector(`#doneCheck${taskCount}`);
-doneCheckbox.addEventListener('change', function() {
-    // Ensure the change event only applies to the clicked checkbox
-    if (doneCheckbox.checked) {
-        const dateCompletedCell = newRow.querySelector('.date-completed'); // Select the cell using the class
-        const currentDate = new Date();
-        const completedDay = String(currentDate.getDate()).padStart(2, '0');
-        const completedMonth = String(currentDate.getMonth() + 1).padStart(2, '0');
-        const completedYear = currentDate.getFullYear();
-        dateCompletedCell.textContent = `${completedDay}-${completedMonth}-${completedYear}`; // Format: dd-mm-yyyy
-        disableTaskRow(newRow);
-    }
-});
-
+    doneCheckbox.addEventListener('change', function() {
+        if (doneCheckbox.checked) {
+            const dateCompletedCell = newRow.querySelector('.date-completed');
+            const currentDate = new Date();
+            const completedDay = String(currentDate.getDate()).padStart(2, '0');
+            const completedMonth = String(currentDate.getMonth() + 1).padStart(2, '0');
+            const completedYear = currentDate.getFullYear();
+            dateCompletedCell.textContent = `${completedDay}-${completedMonth}-${completedYear}`;
+            disableTaskRow(newRow);
+        }
+    });
 
     taskTableBody.appendChild(newRow);
     taskHistory.push(newRow);
     document.getElementById('undoBtn').disabled = false;
     document.getElementById('removeDoneBtn').disabled = false;
-
     updateTaskCounter();
 }
+
 
 function disableTaskRow(row) {
     row.classList.add('disabled-row');
@@ -92,8 +101,6 @@ document.getElementById('removeDoneBtn').addEventListener('click', removeDoneTas
 
 // Trigger login modal on button click
 
-
-
 document.getElementById('loginBtn').addEventListener('click', function() {
     const loginModal = new bootstrap.Modal(document.getElementById('loginModal'));
     loginModal.show();
@@ -113,3 +120,4 @@ document.querySelector('.btn.bg-info.text-white.m-2:nth-of-type(1)').addEventLis
     const signupModal = new bootstrap.Modal(document.getElementById('signupModal'));
     signupModal.show();
 });
+
